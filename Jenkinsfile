@@ -84,29 +84,32 @@ echo "🚀 Building Model"
       }
     }
 
-    stage("Deploy to Kubernetes using Helm") {
-      steps {
-        container("helm") {
-          sh '''
-echo "🚀 Deploying movie-analyzer using Helm"
+    stage('Deploy to Kubernetes using Helm') {
+  steps {
+    container('helm') {
+      sh '''
+        echo "📥 Cloning Helm repo"
+        rm -rf movie-analyzer-helm
+        git clone https://github.com/DeviVaraPrasadJ-dev/movie-analyzer-helm.git
 
-helm upgrade --install movie-analyzer ./movie-analyzer-helm \
-  --namespace movie-analyzer \
-  --create-namespace \
-  --values movie-analyzer-helm/values-dev.yaml \
-  --set backend.image.repository=${ECR_REGISTRY}/movie-backend \
-  --set backend.image.tag=${BUILD_NUMBER} \
-  --set frontend.image.repository=${ECR_REGISTRY}/movie-frontend \
-  --set frontend.image.tag=${BUILD_NUMBER} \
-  --set model.image.repository=${ECR_REGISTRY}/movie-model \
-  --set model.image.tag=${BUILD_NUMBER}
+        echo "🚀 Deploying movie-analyzer using Helm"
 
-echo "✅ Helm deployment completed"
-'''
-        }
-      }
+        helm upgrade --install movie-analyzer ./movie-analyzer-helm \
+          --namespace movie-analyzer \
+          --create-namespace \
+          --values movie-analyzer-helm/values-dev.yaml \
+          --set backend.image.repository=${ECR_REGISTRY}/movie-backend \
+          --set backend.image.tag=${BUILD_NUMBER} \
+          --set frontend.image.repository=${ECR_REGISTRY}/movie-frontend \
+          --set frontend.image.tag=${BUILD_NUMBER} \
+          --set model.image.repository=${ECR_REGISTRY}/movie-model \
+          --set model.image.tag=${BUILD_NUMBER}
+
+        echo "✅ Helm deployment completed"
+      '''
     }
-
+  }
+}
   }
 
   post {
