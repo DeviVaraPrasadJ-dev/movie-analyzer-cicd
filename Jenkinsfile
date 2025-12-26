@@ -72,8 +72,9 @@ spec:
         }
       }
     }
-  }
+  
   stage('Deploy to Kubernetes using Helm') {
+    steps {
    container('helm') {
     sh '''
       echo "🚀 Deploying movie-analyzer using Helm"
@@ -91,9 +92,11 @@ spec:
 
       echo "✅ Helm deployment completed"
     '''
+    }
   }
 }
 
+  }
   post {
     success {
       echo "✅ Backend, Frontend & Model images pushed to ECR"
