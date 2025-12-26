@@ -9,11 +9,15 @@ RUN npm install
 COPY . .
 RUN npm run build
 
+
 # ---------- Runtime stage ----------
 FROM nginx:alpine
 
-# Copy built static files
-COPY --from=build /app/dist /usr/share/nginx/html
+# Remove default nginx static content
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy React build output
+COPY --from=build /app/build /usr/share/nginx/html
 
 EXPOSE 80
 
