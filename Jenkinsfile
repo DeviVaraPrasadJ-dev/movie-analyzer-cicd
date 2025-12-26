@@ -2,41 +2,41 @@ pipeline {
   agent {
     kubernetes {
       yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  serviceAccountName: jenkins
-  restartPolicy: Never
+      apiVersion: v1
+      kind: Pod
+      spec:
+        serviceAccountName: jenkins
+        restartPolicy: Never
 
-  containers:
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:v1.23.2-debug
-    command: ["/busybox/sh", "-c"]
-    args: ["sleep 999999"]
-    tty: true
-    volumeMounts:
-    - name: workspace
-      mountPath: /home/jenkins/agent
+        containers:
+        - name: kaniko
+          image: gcr.io/kaniko-project/executor:v1.23.2-debug
+          command: ["/busybox/sh", "-c"]
+          args: ["sleep 999999"]
+          tty: true
+          volumeMounts:
+          - name: workspace
+            mountPath: /home/jenkins/agent
 
-  - name: helm
-    image: dtzar/helm-kubectl:3.14.0
-    command: ["cat"]
-    tty: true
-    volumeMounts:
-    - name: workspace
-      mountPath: /home/jenkins/agent
+        - name: helm
+          image: dtzar/helm-kubectl:3.14.0
+          command: ["cat"]
+          tty: true
+          volumeMounts:
+          - name: workspace
+            mountPath: /home/jenkins/agent
 
-  - name: jnlp
-    image: jenkins/inbound-agent:3345.v03dee9b_f88fc-1
-    args: ["$(JENKINS_SECRET)", "$(JENKINS_NAME)"]
-    volumeMounts:
-    - name: workspace
-      mountPath: /home/jenkins/agent
+        - name: jnlp
+          image: jenkins/inbound-agent:3345.v03dee9b_f88fc-1
+          args: ["$(JENKINS_SECRET)", "$(JENKINS_NAME)"]
+          volumeMounts:
+          - name: workspace
+            mountPath: /home/jenkins/agent
 
-  volumes:
-  - name: workspace
-    emptyDir: {}
-"""
+        volumes:
+        - name: workspace
+          emptyDir: {}
+      """
     }
   }
 
