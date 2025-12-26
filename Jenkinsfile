@@ -47,9 +47,11 @@ spec:
     container('kaniko') {
       sh '''
         /kaniko/executor \
-          --context=movie-analyzer-app/backend \
-          --dockerfile=Dockerfile \
-          --destination=${ECR_REGISTRY}/movie-backend:${BUILD_NUMBER}
+        --context=dir://${WORKSPACE}/movie-analyzer-app/backend \
+        --dockerfile=${WORKSPACE}/movie-analyzer-app/backend/Dockerfile \
+        --destination=${ECR_REGISTRY}/movie-backend:${BUILD_NUMBER} \
+        --verbosity=info
+
       '''
     }
   }
@@ -60,9 +62,10 @@ spec:
         container('kaniko') {
           sh """
           /kaniko/executor \
-            --context=movie-analyzer-app/frontend \
-            --dockerfile=Dockerfile \
+            --context=dir://${WORKSPACE}/movie-analyzer-app/frontend \
+            --dockerfile=${WORKSPACE}/movie-analyzer-app/frontend/Dockerfile \
             --destination=${ECR_REGISTRY}/movie-frontend:${BUILD_NUMBER}
+
           """
         }
       }
@@ -73,9 +76,10 @@ spec:
         container('kaniko') {
           sh """
            /kaniko/executor \
-            --context=movie-analyzer-app/model \
-            --dockerfile=Dockerfile \
+            --context=dir://${WORKSPACE}/movie-analyzer-app/model \
+            --dockerfile=${WORKSPACE}/movie-analyzer-app/model/Dockerfile \
             --destination=${ECR_REGISTRY}/movie-model:${BUILD_NUMBER}
+
           """
         }
       }
