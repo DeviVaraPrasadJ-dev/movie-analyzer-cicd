@@ -22,6 +22,14 @@ spec:
     volumeMounts:
     - name: workspace
       mountPath: /home/jenkins/agent
+    - name: helm
+    image: dtzar/helm-kubectl:3.14.0
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: workspace
+      mountPath: /home/jenkins/agent
   volumes:
   - name: workspace
     emptyDir: {}
