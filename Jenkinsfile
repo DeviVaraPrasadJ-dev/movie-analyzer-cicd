@@ -43,17 +43,17 @@ spec:
     }
 
     stage('Build & Push Backend') {
-      steps {
-        container('kaniko') {
-          sh """
-          /kaniko/executor \
-            --context=movie-analyzer-app/backend \
-            --dockerfile=movie-analyzer-app/backend/Dockerfile \
-            --destination=\${BACKEND_IMAGE}:\${IMAGE_TAG}
-          """
-        }
-      }
+  steps {
+    container('kaniko') {
+      sh '''
+        /kaniko/executor \
+          --context=movie-analyzer-app/backend \
+          --dockerfile=Dockerfile \
+          --destination=${ECR_REGISTRY}/movie-backend:${BUILD_NUMBER}
+      '''
     }
+  }
+}
 
     stage('Build & Push Frontend') {
       steps {
@@ -61,8 +61,8 @@ spec:
           sh """
           /kaniko/executor \
             --context=movie-analyzer-app/frontend \
-            --dockerfile=movie-analyzer-app/frontend/Dockerfile \
-            --destination=\${FRONTEND_IMAGE}:\${IMAGE_TAG}
+            --dockerfile=Dockerfile \
+            --destination=${ECR_REGISTRY}/movie-frontend:${BUILD_NUMBER}
           """
         }
       }
@@ -72,10 +72,10 @@ spec:
       steps {
         container('kaniko') {
           sh """
-          /kaniko/executor \
+           /kaniko/executor \
             --context=movie-analyzer-app/model \
-            --dockerfile=movie-analyzer-app/model/Dockerfile \
-            --destination=\${MODEL_IMAGE}:\${IMAGE_TAG}
+            --dockerfile=Dockerfile \
+            --destination=${ECR_REGISTRY}/movie-model:${BUILD_NUMBER}
           """
         }
       }
