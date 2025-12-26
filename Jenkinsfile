@@ -8,88 +8,70 @@ spec:
   serviceAccountName: jenkins
   containers:
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:v1.23.2
-    imagePullPolicy: IfNotPresent
+    image: gcr.io/kaniko-project/executor:latest
+    command:
+    - /busybox/cat
     tty: true
-    volumeMounts:
-    - name: docker-config
-      mountPath: /kaniko/.docker
-  volumes:
-  - name: docker-config
-    emptyDir: {}
 """
     }
   }
 
   environment {
     AWS_REGION = "ap-south-1"
-    ACCOUNT_ID = "433193941125"
-    ECR_REGISTRY = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+    ECR_REGISTRY = "433193941125.dkr.ecr.ap-south-1.amazonaws.com"
 
-    BACKEND_IMAGE  = "${ECR_REGISTRY}/movie-backend"
-    FRONTEND_IMAGE = "${ECR_REGISTRY}/movie-frontend"
-    MODEL_IMAGE    = "${ECR_REGISTRY}/movie-model"
+    BACKEND_IMAGE  = "\${ECR_REGISTRY}/movie-backend"
+    FRONTEND_IMAGE = "\${ECR_REGISTRY}/movie-frontend"
+    MODEL_IMAGE    = "\${ECR_REGISTRY}/movie-model"
 
-    IMAGE_TAG = "${BUILD_NUMBER}"
+    IMAGE_TAG = "\${BUILD_NUMBER}"
   }
 
   stages {
 
-    stage("Checkout") {
+    stage('Checkout') {
       steps {
         checkout scm
       }
     }
 
-    stage("Build & Push Backend") {
+    stage('Build & Push Backend') {
       steps {
-        container("kaniko") {
+        container('kaniko') {
           sh """
           /kaniko/executor \
-            --dockerfile=backend/Dockerfile \
-            --context=backend \
-            --destination=${BACKEND_IMAGE}:${IMAGE_TAG} \
-            --destination=${BACKEND_IMAGE}:latest
+            --context=movie-analyzer-app/backend \
+            --dockerfile=movie-analyzer-app/backend/Dockerfile \
+            --destination=\${BACKEND_IMAGE}:\${IMAGE_TAG}
           """
         }
       }
     }
 
-    stage("Build & Push Frontend") {
+    stage('Build & Push Frontend') {
       steps {
-        container("kaniko") {
+        container('kaniko') {
           sh """
           /kaniko/executor \
-            --dockerfile=frontend/Dockerfile \
-            --context=frontend \
-            --destination=${FRONTEND_IMAGE}:${IMAGE_TAG} \
-            --destination=${FRONTEND_IMAGE}:latest
+            --context=movie-analyzer-app/frontend \
+            --dockerfile=movie-analyzer-app/frontend/Dockerfile \
+            --destination=\${FRONTEND_IMAGE}:\${IMAGE_TAG}
           """
         }
       }
     }
 
-    stage("Build & Push Model") {
+    stage('Build & Push Model') {
       steps {
-        container("kaniko") {
+        container('kaniko') {
           sh """
           /kaniko/executor \
-            --dockerfile=model/Dockerfile \
-            --context=model \
-            --destination=${MODEL_IMAGE}:${IMAGE_TAG} \
-            --destination=${MODEL_IMAGE}:latest
+            --context=movie-analyzer-app/model \
+            --dockerfile=movie-analyzer-app/model/Dockerfile \
+            --destination=\${MODEL_IMAGE}:\${IMAGE_TAG}
           """
         }
       }
-    }
-  }
-
-  post {
-    success {
-      echo "✅ Images built and pushed to ECR successfully"
-    }
-    failure {
-      echo "❌ Build failed"
     }
   }
 }
