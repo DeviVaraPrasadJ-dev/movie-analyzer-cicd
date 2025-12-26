@@ -73,8 +73,8 @@ spec:
       }
     }
   }
-    stage('Deploy to Kubernetes using Helm') {
-  container('helm') {
+  stage('Deploy to Kubernetes using Helm') {
+   container('helm') {
     sh '''
       echo "🚀 Deploying movie-analyzer using Helm"
 
