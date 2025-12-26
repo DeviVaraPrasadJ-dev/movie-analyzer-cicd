@@ -34,15 +34,17 @@ spec:
     stage('Build Backend Image') {
       steps {
         container('kaniko') {
-          sh '''
-            ls -l backend
-          /kaniko/executor \
-            --context=dir://${WORKSPACE}/backend \
-            --dockerfile=Dockerfile \
-            --destination=${ECR_REGISTRY}/movie-backend:${BUILD_NUMBER} \
-            --verbosity=info
+      sh """
+        echo "ECR_ACCOUNT=${ECR_ACCOUNT}"
+        echo "AWS_REGION=${AWS_REGION}"
+        echo "BUILD_NUMBER=${BUILD_NUMBER}"
 
-          '''
+        /kaniko/executor \
+          --context=dir://${WORKSPACE}/backend \
+          --dockerfile=Dockerfile \
+          --destination="${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/movie-backend:${BUILD_NUMBER}" \
+          --verbosity=info
+      """
         }
       }
     }
