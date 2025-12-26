@@ -73,6 +73,26 @@ spec:
       }
     }
   }
+    stage('Deploy to Kubernetes using Helm') {
+  container('helm') {
+    sh '''
+      echo "🚀 Deploying movie-analyzer using Helm"
+
+      helm upgrade --install movie-analyzer ./movie-analyzer-helm \
+        --namespace movie-analyzer \
+        --create-namespace \
+        --values movie-analyzer-helm/values-dev.yaml \
+        --set backend.image.repository=${ECR_REGISTRY}/movie-backend \
+        --set backend.image.tag=${BUILD_NUMBER} \
+        --set frontend.image.repository=${ECR_REGISTRY}/movie-frontend \
+        --set frontend.image.tag=${BUILD_NUMBER} \
+        --set model.image.repository=${ECR_REGISTRY}/movie-model \
+        --set model.image.tag=${BUILD_NUMBER}
+
+      echo "✅ Helm deployment completed"
+    '''
+  }
+}
 
   post {
     success {
