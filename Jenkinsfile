@@ -4,18 +4,24 @@ pipeline {
     yaml """
 apiVersion: v1
 kind: Pod
+metadata:
+  annotations:
+    jenkins.io/skip-container-readiness: "kaniko"
 spec:
   serviceAccountName: jenkins
+  restartPolicy: Never
   containers:
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
+    image: gcr.io/kaniko-project/executor:debug
     command:
-    - sleep
-    - "999999"
+    - /busybox/sh
+    args:
+    - -c
+    - sleep 3600
+    tty: true
 """
   }
 }
-
 
   environment {
     AWS_REGION = "ap-south-1"
