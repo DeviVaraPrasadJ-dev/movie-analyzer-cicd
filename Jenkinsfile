@@ -10,11 +10,8 @@ spec:
   containers:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.23.2-debug
-    command:
-    - /busybox/sh
-    args:
-    - -c
-    - sleep 3600
+    command: ["/busybox/sh", "-c"]
+    args: ["sleep 999999"]
     tty: true
     volumeMounts:
     - name: workspace
@@ -33,7 +30,7 @@ spec:
   }
 
   environment {
-    AWS_REGION  = "ap-south-1"
+    AWS_REGION   = "ap-south-1"
     ECR_ACCOUNT = "433193941125"
     ECR_REGISTRY = "${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com"
     TAG = "${BUILD_NUMBER}"
@@ -47,43 +44,30 @@ spec:
       }
     }
 
-    stage("Build & Push Backend") {
+    stage("Build & Push Images") {
       steps {
         container("kaniko") {
           sh """
-            /kaniko/executor \
-              --context=dir://${WORKSPACE}/backend \
-              --dockerfile=${WORKSPACE}/backend/Dockerfile \
-              --destination=${ECR_REGISTRY}/movie-backend:${TAG} \
-              --verbosity=info
-          """
-        }
-      }
-    }
+          echo "🚀 Building Backend"
+          /kaniko/executor \
+            --context=dir://${WORKSPACE}/backend \
+            --dockerfile=${WORKSPACE}/backend/Dockerfile \
+            --destination=${ECR_REGISTRY}/movie-backend:${TAG} \
+            --verbosity=info
 
-    stage("Build & Push Frontend") {
-      steps {
-        container("kaniko") {
-          sh """
-            /kaniko/executor \
-              --context=dir://${WORKSPACE}/frontend \
-              --dockerfile=${WORKSPACE}/frontend/Dockerfile \
-              --destination=${ECR_REGISTRY}/movie-frontend:${TAG} \
-              --verbosity=info
-          """
-        }
-      }
-    }
+          echo "🚀 Building Frontend"
+          /kaniko/executor \
+            --context=dir://${WORKSPACE}/frontend \
+            --dockerfile=${WORKSPACE}/frontend/Dockerfile \
+            --destination=${ECR_REGISTRY}/movie-frontend:${TAG} \
+            --verbosity=info
 
-    stage("Build & Push Model") {
-      steps {
-        container("kaniko") {
-          sh """
-            /kaniko/executor \
-              --context=dir://${WORKSPACE}/model \
-              --dockerfile=${WORKSPACE}/model/Dockerfile \
-              --destination=${ECR_REGISTRY}/movie-model:${TAG} \
-              --verbosity=info
+          echo "🚀 Building Model"
+          /kaniko/executor \
+            --context=dir://${WORKSPACE}/model \
+            --dockerfile=${WORKSPACE}/model/Dockerfile \
+            --destination=${ECR_REGISTRY}/movie-model:${TAG} \
+            --verbosity=info
           """
         }
       }
@@ -92,7 +76,7 @@ spec:
 
   post {
     success {
-      echo "✅ All images built and pushed to ECR successfully"
+      echo "✅ Backend, Frontend & Model images pushed to ECR"
     }
     failure {
       echo "❌ Pipeline failed"
