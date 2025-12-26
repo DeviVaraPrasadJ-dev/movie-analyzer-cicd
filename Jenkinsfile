@@ -1,7 +1,7 @@
 pipeline {
   agent {
-    kubernetes {
-      yaml """
+  kubernetes {
+    yaml """
 apiVersion: v1
 kind: Pod
 spec:
@@ -10,11 +10,12 @@ spec:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:latest
     command:
-    - /busybox/cat
-    tty: true
+    - sleep
+    - "999999"
 """
-    }
   }
+}
+
 
   environment {
     AWS_REGION = "ap-south-1"
