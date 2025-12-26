@@ -35,12 +35,13 @@ spec:
       steps {
         container('kaniko') {
           sh '''
-            ls -l movie-analyzer-cicd/backend
-            /kaniko/executor \
-              --context=dir://${WORKSPACE}/movie-analyzer-cicd/backend \
-              --dockerfile=Dockerfile \
-              --destination=${ECR_REGISTRY}/movie-backend:${BUILD_NUMBER} \
-              --verbosity=info
+            ls -l backend
+          /kaniko/executor \
+            --context=dir://${WORKSPACE}/backend \
+            --dockerfile=Dockerfile \
+            --destination=${ECR_REGISTRY}/movie-backend:${BUILD_NUMBER} \
+            --verbosity=info
+
           '''
         }
       }
