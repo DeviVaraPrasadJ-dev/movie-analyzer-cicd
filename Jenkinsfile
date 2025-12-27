@@ -12,7 +12,7 @@ spec:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.23.2-debug
     command: ["/busybox/sh", "-c"]
-    args: ["sleep 999999"]
+    args: ["sleep infinity"]
     tty: true
     volumeMounts:
     - name: workspace
